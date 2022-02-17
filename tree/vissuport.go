@@ -24,7 +24,7 @@ func visAddWithChildren(p *Node, s *string) {
 			color = "33ff99"
 		}
 		if p.IsRoot {
-			color = "ff9040"
+			color = "ffA050"
 		}
 
 		label := hex.EncodeToString(p.Hash)[:5] + "..." + hex.EncodeToString(p.Hash)[59:]
