@@ -1,0 +1,28 @@
+
+{{define "header"}}
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Integer Partition ZK Test</title>
+    <script
+            type="text/javascript"
+            src="/static/vis-network.min.js"
+    ></script>
+</head>
+<body >
+
+<a href="/"><h3 style="color: black">Partitioning a set of integers into two equal subsets</h3></a>
+<h4>And ZK-proving the solution</h4>
+
+{{ with .User}}You are logged in as "{{.}}" <br/>{{end}}
+<hr/>
+{{end}}
+
+{{define "footer"}}
+<hr/>
+Santander Blockchain Center of Excellence
+
+</body>
+</html>
+        {{end}}

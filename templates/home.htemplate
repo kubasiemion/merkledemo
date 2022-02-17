@@ -1,0 +1,170 @@
+{{define "home"}}
+{{template "header" .HeaderData}}
+        {{with .Error}}Error: {{.}}{{end}}
+
+<style type="text/css">
+#mynetwork {
+    width: 1800px;
+    height: 600px;
+    border: 2px solid lightgray;
+}
+
+
+</style>
+
+
+
+
+
+<form action="/partition" method="post"> 
+<table  >
+<tr>
+<td width=150px valign="top">Integers to partition:</td><td width=1000px>
+
+<textarea style="border: none; width: 100%; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;" name="partitionstring">
+{{with .BodyData}}{{with .PString}}{{.}}{{end}}{{end}}</textarea></td>
+</tr>
+<tr>
+<td><input type="Submit" value="Submit" /></td><td>Branch count: <input type="Text" name="branchcount" value={{with .BodyData}}{{.Branchcount}}{{end}}></input></td>
+</tr>
+</table>
+
+
+<hr/>
+<div id="mynetwork"></div>           
+
+<table>
+<tr>
+<td valign="top">Integer set:</td><td>
+  {{with .BodyData}}{{with .Set}}
+<table border><tr>
+  {{range $v := .}}<td width=30>{{$v}}</td>{{end}}
+  </tr></table>
+  {{end}}{{end}}</td>
+</tr>
+<tr>
+<td valign="top">Solution:</td><td>
+{{with .BodyData}}{{with .Solution}}
+<table border><tr>
+  {{range $v := .}}<td width=30>{{$v}}</td>{{end}}
+  </tr></table>
+{{end}}{{end}}</td>
+</tr>
+<tr>
+<td valign="top">Witness:</td><td>
+{{with .BodyData}}{{with .Witness}}
+<table border><tr>
+  {{range $v := .}}<td width=40>{{$v}}</td>{{end}}
+  </tr></table>
+{{end}}{{end}}</td>
+</tr>
+
+<tr>
+<td valign="top">Obfuscated Witness:</td><td>
+{{with .BodyData}}{{with .ObfuscatedWitness}}
+
+<table border>
+<tr>
+  {{range $n, $v := .}}<td width=40 ><button  value={{$n}} name="getproof" style="width: 100%">{{$v}} </button></td>{{end}}
+  </tr>
+
+  
+  </table>
+{{end}}{{end}}</td>
+</tr>
+<tr>
+<td valign="top">Merkle Tree:</td><td>
+{{with .BodyData}}{{with .Tree}}
+{{.NiceRoot}}
+
+{{end}}{{end}}</td>
+</tr>
+
+
+
+
+
+</table>
+</td>
+<td><div></td>
+</tr></table>
+</form>
+{{with .BodyData}}{{with .Tree}}
+<script type="text/javascript">
+// create an array with nodes
+var nodes = new vis.DataSet(
+  {{.VisNet.Nodes}}
+);
+
+// create an array with edges
+var edges = new vis.DataSet(
+{{.VisNet.Edges}}
+);
+
+// create a network
+var container = document.getElementById("mynetwork");
+var data = {
+  nodes: nodes,
+  edges: edges,
+};
+var options2 = {
+        physics: {enabled: false},
+        layout: {
+            randomSeed: 0,
+            improvedLayout:true,
+            clusterThreshold: 150,
+            hierarchical: {
+                enabled:true,
+                levelSeparation: 150,
+                nodeSpacing: 150,
+                treeSpacing: 200,
+                blockShifting: true,
+                edgeMinimization: true,
+                parentCentralization: true,
+                direction: 'DU',        // UD, DU, LR, RL
+                sortMethod: 'hubsize',  // hubsize, directed
+                shakeTowards: 'leaves'  // roots, leaves
+            }
+        },
+        edges: {arrows:'to'},
+        nodes: {
+    shape: "box",
+    size: "20",
+  },
+};
+
+var options = {
+  layout: {
+    hierarchical: {
+      direction: "UD",
+      sortMethod: "directed",
+    },
+  },
+  edges: {
+    arrows: "to",
+  },
+   nodes: {
+    shape: "box",
+    
+  },
+};
+
+var network = new vis.Network(container, data, options);
+
+
+function circle (nodes) {
+
+        var ids = nodes.getIds();
+        
+       
+        for (var i in ids) {
+            var x0 = (i % 1000)*100;
+            var y0 = i/10;
+            network.moveNode(ids[i], x0, y0);
+        }
+    }
+
+</script>
+{{end}}{{end}}
+{{template "footer" .FooterData}}
+{{end}}
