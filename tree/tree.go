@@ -85,7 +85,7 @@ func NewTree(hf hash.Hash, data [][]byte, branchCount int) *Tree {
 	leaves := make([]*Node, 0)
 
 	tr := new(Tree)
-	tr.BranchCount = nextPowerOf2(branchCount)
+	tr.BranchCount = branchCount //nextPowerOf2(branchCount)
 	tr.Hash = hf
 	for i := 0; i < len(data); i++ {
 		nod := new(Node)
@@ -106,7 +106,6 @@ func NewTree(hf hash.Hash, data [][]byte, branchCount int) *Tree {
 }
 
 func (tr *Tree) makeParents(level []*Node, lvl int) {
-
 	p := len(level)
 	if p == 1 {
 		tr.Root = level[0]
@@ -121,7 +120,6 @@ func (tr *Tree) makeParents(level []*Node, lvl int) {
 		parent.Children = make([]*Node, 0)
 		tr.Hash.Reset()
 		for j := 0; i < p && j < tr.BranchCount; j++ {
-
 			child := level[i]
 			if child != nil {
 				child.Idx = j

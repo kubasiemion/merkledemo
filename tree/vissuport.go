@@ -23,6 +23,9 @@ func visAddWithChildren(p *Node, s *string) {
 		if p.isLeaf {
 			color = "33ff99"
 		}
+		if len(p.Data) > 0 {
+			color = "fee9b4"
+		}
 		if p.IsRoot {
 			color = "ffA050"
 		}

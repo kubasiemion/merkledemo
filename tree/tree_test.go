@@ -12,7 +12,7 @@ func TestNewTree(t *testing.T) {
 	data := [][]byte{{0, 0, 0, 1}, {0, 0, 0, 2}, nil, {0, 0, 0, 3}, {0, 0, 0, 7}}
 	hf := sha256.New()
 	tr := NewTree(hf, data, 2)
-	//fmt.Println(tr.VisNodes())
+	fmt.Println(tr.VisNodes())
 	fmt.Println()
 	//fmt.Println(tr.VisEdges())
 	fmt.Println(tr)

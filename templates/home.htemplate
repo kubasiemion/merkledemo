@@ -1,11 +1,11 @@
 {{define "home"}}
-{{template "header" .HeaderData}}
+{{template "headerB" .HeaderData}}
         {{with .Error}}Error: {{.}}{{end}}
 
 <style type="text/css">
 #mynetwork {
     width: 1800px;
-    height: 600px;
+    height: 500px;
     border: 2px solid lightgray;
 }
 
@@ -15,11 +15,11 @@
 
 
 
-
+<div class="container-fluid">
 <form action="/partition" method="post"> 
 <table  >
 <tr>
-<td width=150px valign="top">Integers to partition:</td><td width=1000px>
+<td width=200px valign="top">Integers to partition:</td><td width=1000px>
 
 <textarea style="border: none; width: 100%; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;" name="partitionstring">
 {{with .BodyData}}{{with .PString}}{{.}}{{end}}{{end}}</textarea></td>
@@ -29,7 +29,8 @@
 </tr>
 </table>
 
-
+</div>
+<div class="container-fluid">
 <hr/>
 <div id="mynetwork"></div>           
 
@@ -37,7 +38,7 @@
 <tr>
 <td valign="top">Integer set:</td><td>
   {{with .BodyData}}{{with .Set}}
-<table border><tr>
+<table class="table table-bordered"><tr>
   {{range $v := .}}<td width=30>{{$v}}</td>{{end}}
   </tr></table>
   {{end}}{{end}}</td>
@@ -45,7 +46,7 @@
 <tr>
 <td valign="top">Solution:</td><td>
 {{with .BodyData}}{{with .Solution}}
-<table border><tr>
+<table class="table table-bordered"><tr>
   {{range $v := .}}<td width=30>{{$v}}</td>{{end}}
   </tr></table>
 {{end}}{{end}}</td>
@@ -53,7 +54,7 @@
 <tr>
 <td valign="top">Witness:</td><td>
 {{with .BodyData}}{{with .Witness}}
-<table border><tr>
+<table class="table table-bordered"><tr>
   {{range $v := .}}<td width=40>{{$v}}</td>{{end}}
   </tr></table>
 {{end}}{{end}}</td>
@@ -63,7 +64,7 @@
 <td valign="top">Obfuscated Witness:</td><td>
 {{with .BodyData}}{{with .ObfuscatedWitness}}
 
-<table border>
+<table class="table table-bordered">
 <tr>
   {{range $n, $v := .}}<td width=40 ><button  value={{$n}} name="getproof" style="width: 100%">{{$v}} </button></td>{{end}}
   </tr>
@@ -89,6 +90,7 @@
 <td><div></td>
 </tr></table>
 </form>
+</div>
 {{with .BodyData}}{{with .Tree}}
 <script type="text/javascript">
 // create an array with nodes
