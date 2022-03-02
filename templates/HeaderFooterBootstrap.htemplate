@@ -26,7 +26,7 @@
 {{define "footerB"}}
 <hr/>
 Santander Blockchain Center of Excellence
-
+<h4>x{{with .SessionID}}{{.Value}}{{end}}</h4>
 </body>
 </html>
         {{end}}

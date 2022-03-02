@@ -13,6 +13,7 @@ import (
 
 	"github.com/kubasiemion/merkledemo/forcehalving"
 	"github.com/kubasiemion/merkledemo/tree"
+	"github.com/san-lab/commongo/gohttpservice"
 	"github.com/san-lab/commongo/gohttpservice/templates"
 )
 
@@ -31,6 +32,14 @@ func NewHandler() *myHandler {
 func (mh *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	data := new(templates.RenderData)
+	var err error
+	data.SessionID, err = r.Cookie(gohttpservice.SessionIdName)
+	fmt.Println(data.SessionID)
+	if err != nil {
+		fmt.Fprintln(w, err)
+		return
+
+	}
 	path := r.URL.Path[1:]
 	data.User, _, _ = r.BasicAuth()
 	data.HeaderData = struct {
@@ -42,7 +51,7 @@ func (mh *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch path {
 	case "loadtemplates":
-		mh.Renderer.LoadTemplates()
+		mh.Renderer.LoadTemplates("")
 	case "partition":
 		partition(data, r)
 	default:
@@ -56,16 +65,30 @@ func (mh *myHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-var lastPartition = Partition{}
+var partitionMemory = map[string]*Partition{}
 
 func partition(data *templates.RenderData, rq *http.Request) {
+	var part *Partition
+	if data.SessionID != nil {
+		part = partitionMemory[data.SessionID.Value]
+	}
 
+	if part == nil {
+		part = &Partition{}
+	}
+	data.BodyData = part
 	pstr := rq.FormValue("partitionstring")
+	if len(pstr) == 0 {
+		pstr = "1,2,3,4,5,6,7"
+	}
 	leafcountstr := rq.FormValue("branchcount")
+
 	branchcount, err := strconv.Atoi(leafcountstr)
-	if err != nil {
+
+	if err != nil || branchcount == 0 {
 		branchcount = 2
 	}
+	part.Branchcount = branchcount
 	reg := regexp.MustCompile(`[; ,]`)
 	sint := reg.Split(pstr, -1)
 	intset := []int{}
@@ -80,58 +103,63 @@ func partition(data *templates.RenderData, rq *http.Request) {
 		}
 
 	}
-	prt := Partition{Set: intset, PString: pstr}
+	part.Set = intset
+	part.PString = pstr
+	part.Proofs = map[int]*tree.Tree{}
 
+	// See if this is about a new proof
 	proofidxstring := rq.FormValue("getproof")
-	if lastPartition.Tree != nil && len(proofidxstring) > 0 {
+	if part.Tree != nil && len(proofidxstring) > 0 {
 		idx, err := strconv.Atoi(proofidxstring)
 		if err != nil {
 			data.Error = fmt.Sprint(err)
 			return
 		}
-		proofTree, err := lastPartition.Tree.GetProof(idx)
+		part.DisplayTree, err = part.Tree.GetProof(idx)
 		if err != nil {
 			data.Error = fmt.Sprint(err)
-			return
-		}
-		fmt.Println("Proof consistent:", tree.VerifyProofConsistency(proofTree))
-		prt = lastPartition
-		prt.Tree = proofTree
 
-	} else {
-		prt.Solution, err = forcehalving.ForceHalve(intset)
-		if err != nil {
-			data.Error = fmt.Sprint(err)
-			return
 		}
+		part.Proofs[idx] = part.DisplayTree
+		return
+	}
 
-		if len(prt.Solution) > 0 {
-			prev := 0
-			prt.Witness = []int{prev}
-			for i, s := range prt.Solution {
-				prev += s * prt.Set[i]
-				prt.Witness = append(prt.Witness, prev)
-			}
-			prt.ObfuscatedWitness = ObfuscatedWitness(prt.Set, prt.Solution)
-			prt.Tree = BuildTree(prt.ObfuscatedWitness, branchcount)
-			lastPartition = prt
+	//Generate a new tree
+
+	part.Solution, err = forcehalving.ForceHalve(intset)
+	if err != nil {
+		data.Error = fmt.Sprint(err)
+		return
+	}
+
+	if len(part.Solution) > 0 {
+		prev := 0
+		part.Witness = []int{prev}
+		for i, s := range part.Solution {
+			prev += s * part.Set[i]
+			part.Witness = append(part.Witness, prev)
 		}
-
-		prt.Branchcount = branchcount
+		part.ObfuscatedWitness = ObfuscatedWitness(part.Set, part.Solution)
+		part.Tree = BuildTree(part.ObfuscatedWitness, branchcount)
 
 	}
-	data.BodyData = prt
+	part.Id = data.SessionID.Value
+	partitionMemory[data.SessionID.Value] = part
+
+	part.DisplayTree = part.Tree
 
 }
 
 type Partition struct {
+	Id                string
 	PString           string
 	Set               []int
 	Solution          []int
 	Witness           []int
 	ObfuscatedWitness []int
 	Tree              *tree.Tree
-	Proofs            [][][]byte
+	Proofs            map[int]*tree.Tree
+	DisplayTree       *tree.Tree
 	Branchcount       int
 }
 

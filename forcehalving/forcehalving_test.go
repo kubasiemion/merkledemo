@@ -13,4 +13,7 @@ func TestHalving(t *testing.T) {
 	sol, err = ForceHalve([]int{1, 2, 3, 4, 5, 7, 8, 9, 11, 22, 34})
 	fmt.Println(err)
 	fmt.Println(sol)
+	sol, err = ForceHalve([]int{1, 2, 3, 4})
+	fmt.Println(err)
+	fmt.Println(sol)
 }

@@ -75,7 +75,7 @@
 </tr>
 <tr>
 <td valign="top">Merkle Tree:</td><td>
-{{with .BodyData}}{{with .Tree}}
+{{with .BodyData}}{{with .DisplayTree}}
 {{.NiceRoot}}
 
 {{end}}{{end}}</td>
@@ -89,9 +89,12 @@
 </td>
 <td><div></td>
 </tr></table>
+{{with .BodyData}}{{with .Id}}
+<input type="hidden" name="sessionid" value="{{.}}" />
+{{end}}{{end}}
 </form>
 </div>
-{{with .BodyData}}{{with .Tree}}
+{{with .BodyData}}{{with .DisplayTree}}
 <script type="text/javascript">
 // create an array with nodes
 var nodes = new vis.DataSet(
@@ -168,5 +171,5 @@ function circle (nodes) {
 
 </script>
 {{end}}{{end}}
-{{template "footer" .FooterData}}
+{{template "footerB" .}}
 {{end}}
